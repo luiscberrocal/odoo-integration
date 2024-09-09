@@ -1,7 +1,7 @@
 volumes:
-  odoo_integration_local_postgres_data: {}
-  odoo_integration_local_postgres_data_backups: {}
-  odoo_integration_local_redis_data: {}
+  odoo_integration_local_postgres_data: { }
+  odoo_integration_local_postgres_data_backups: { }
+  odoo_integration_local_redis_data: { }
 
   local_postgres_data: { }
   local_postgres_data_backups: { }
@@ -60,7 +60,7 @@ services:
       - redis
       - postgres
       - mailpit
-    ports: []
+    ports: [ ]
     command: /start-celeryworker
 
   celerybeat:
@@ -71,7 +71,7 @@ services:
       - redis
       - postgres
       - mailpit
-    ports: []
+    ports: [ ]
     command: /start-celerybeat
 
   flower:
@@ -100,7 +100,7 @@ services:
   db:
     build:
       context: .
-      dockerfile: compose/local/postgres/Dockerfile
+      dockerfile: ./compose/production/postgres/Dockerfile
     image: odoo_production_postgres
     container_name: postgres_odoo
     volumes:
@@ -111,13 +111,13 @@ services:
       - POSTGRES_PASSWORD=odoo
       - POSTGRES_DB=postgres
     ports:
-      - "5432:5432"
+      - "5433:5433"
 
   odoo:
     build:
       context: .
       dockerfile: ./compose/local/odoo/Dockerfile
-    image: oddo
+    image: odoo
     container_name: odoo_app
     depends_on:
       - db
