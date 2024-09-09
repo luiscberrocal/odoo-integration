@@ -3,6 +3,9 @@ volumes:
   odoo_integration_local_postgres_data_backups: {}
   odoo_integration_local_redis_data: {}
 
+  local_postgres_data: { }
+  local_postgres_data_backups: { }
+
 services:
   django: &django
     build:
@@ -44,10 +47,10 @@ services:
   redis:
     image: docker.io/redis:6
     container_name: odoo_integration_local_redis
-    
+
     volumes:
       - odoo_integration_local_redis_data:/data
-    
+
 
   celeryworker:
     <<: *django
@@ -94,3 +97,31 @@ services:
     command: npm run dev
     ports:
       - '3000:3000'
+  db:
+    build:
+      context: .
+      dockerfile: compose/local/postgres/Dockerfile
+    image: odoo_production_postgres
+    container_name: postgres_odoo
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data:Z
+      - local_postgres_data_backups:/backups:z
+    environment:
+      - POSTGRES_USER=odoo
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
+
+  odoo:
+    build:
+      context: .
+      dockerfile: ./compose/local/odoo/Dockerfile
+    image: oddo
+    container_name: odoo_app
+    depends_on:
+      - db
+    ports:
+      - "8069:8069"
+    links:
+      - "db:db"
